@@ -199,6 +199,7 @@
         const tr_ = { sea: fv("sea").checked, air: fv("air").checked };
         L.push("", "——", `您好！我们是${company()}，希望就以下产品询价（交货至${destZH()}）：${R.name_zh || R.name}${R.model ? "（型号 " + R.model + "）" : ""}。请提供 ${q || "100/500/1000"} 件的阶梯价、最小起订量、样品、交期、欧盟合规文件（CE符合性声明、认可实验室检测报告、REACH/RoHS）、包装及贴牌方案；贸易术语：${incs().join(" / ") || "请报价"}${fv("incpref").checked ? "，并请说明贵司首选的贸易术语" : ""}${tr_.sea || tr_.air ? "；运费：" + [tr_.sea ? "海运" : "", tr_.air ? "空运" : ""].filter(Boolean).join("和") + "至" + destZH() : ""}。` + (fv("meet").checked ? (v && v.s ? `我们将于2026年${v.sd}在${v.s}，希望拜访贵厂。` : "我们将于2026年11月15日至27日在中国（广州、佛山、深圳、义乌、上海宝马展），希望与贵司会面或参观工厂。") : "") + "谢谢！");
       }
+      L.push("", "—", "A | E  GLOBAL TRADERS");
       return L.join("\n");
     }
     const enc = s => "=?UTF-8?B?" + btoa(unescape(encodeURIComponent(s))) + "?=";
@@ -206,8 +207,14 @@
       let att = "";
       if (R.img) { try { const b = await (await fetch(R.img)).blob(); const b64 = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(",")[1]); fr.readAsDataURL(b); });
         att = `--AEGTRFQ\r\nContent-Type: image/jpeg; name="${R.id}.jpg"\r\nContent-Transfer-Encoding: base64\r\nContent-Disposition: attachment; filename="${R.id}.jpg"\r\n\r\n${b64.replace(/.{76}/g, "$&\r\n")}\r\n`; } catch (x) {} }
-      const bd = btoa(unescape(encodeURIComponent(body))).replace(/.{76}/g, "$&\r\n");
-      const m = `X-Unsent: 1\r\nTo: ${to}\r\n${bcc ? "Bcc: " + bcc + "\r\n" : ""}From: ${fv("se").value}\r\nSubject: ${enc(subj())}\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary="AEGTRFQ"\r\n\r\n--AEGTRFQ\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${bd}\r\n${att}--AEGTRFQ--\r\n`;
+      const b64 = s => btoa(unescape(encodeURIComponent(s))).replace(/.{76}/g, "$&\r\n");
+      let logo = "";
+      if (R.logo) { try { const lb = await (await fetch(R.logo)).blob(); logo = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(",")[1]); fr.readAsDataURL(lb); }); } catch (x) {} }
+      const html = `<div style="font-family:Calibri,Arial,sans-serif;font-size:14px;line-height:1.5;color:#252524;white-space:pre-wrap">${esc(body)}</div>`
+        + `<table role="presentation" style="margin-top:22px;border-top:1px solid #C8A573;padding-top:12px"><tr><td>${logo ? '<img src="cid:aegt-logo" width="200" alt="AE Global Traders" style="display:block;width:200px;height:auto">' : "<b>AE Global Traders</b>"}</td></tr></table>`;
+      const alt = `--AEGTALT\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${b64(body + "\n\n--\nAE Global Traders")}\r\n--AEGTALT\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${b64(html)}\r\n--AEGTALT--\r\n`;
+      const rel = `--AEGTREL\r\nContent-Type: multipart/alternative; boundary="AEGTALT"\r\n\r\n${alt}` + (logo ? `--AEGTREL\r\nContent-Type: image/png; name="aegt-logo.png"\r\nContent-Transfer-Encoding: base64\r\nContent-ID: <aegt-logo>\r\nContent-Disposition: inline; filename="aegt-logo.png"\r\n\r\n${logo.replace(/.{76}/g, "$&\r\n")}\r\n` : "") + "--AEGTREL--\r\n";
+      const m = `X-Unsent: 1\r\nTo: ${to}\r\n${bcc ? "Bcc: " + bcc + "\r\n" : ""}From: ${fv("se").value}\r\nSubject: ${enc(subj())}\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary="AEGTRFQ"\r\n\r\n--AEGTRFQ\r\nContent-Type: multipart/related; boundary="AEGTREL"\r\n\r\n${rel}${att}--AEGTRFQ--\r\n`;
       const url = URL.createObjectURL(new Blob([m], { type: "message/rfc822" })); const l = document.createElement("a"); l.href = url; l.download = name; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
     }
     const mailto = (to, bcc, body) => { location.href = `mailto:${encodeURIComponent(to)}?${bcc ? "bcc=" + encodeURIComponent(bcc) + "&" : ""}subject=${encodeURIComponent(subj())}&body=${encodeURIComponent(body)}`; };

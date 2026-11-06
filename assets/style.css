@@ -600,3 +600,5 @@ table.spec{font-size:14.5px}
   .bx-row{gap:6px}.bx-row input{flex-basis:100%}.bx-row select{flex:1 1 45%;max-width:none;min-width:0}
   .bx-chips{gap:5px}.bx-chips button{padding:7px 11px;font-size:12px}
 }
+
+.rfq-tip{margin:0;font-size:13px;color:var(--go);background:#EEF5EF;border:1px solid #CFE3D3;border-radius:var(--r);padding:8px 12px}

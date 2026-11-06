@@ -164,11 +164,11 @@
       <div class="rfq-mode"><label><input type="radio" name="mode" value="all" checked> <b>${esc(L3("Zusammen", "Together", "合并"))}</b> – ${esc(L3("eine E-Mail an alle (Empfänger in BCC)", "one e-mail to all (recipients in BCC)", "一封邮件发给所有人（密送）"))}</label>
       <label><input type="radio" name="mode" value="one"> <b>${esc(L3("Einzeln", "One by one", "逐个"))}</b> – ${esc(L3("je Anbieter eine persönliche E-Mail", "one personal e-mail per vendor", "每个供应商一封个性化邮件"))}</label></div>
       <textarea name="txt" rows="9" readonly></textarea>
-      <div class="rfqa" data-all><button type="button" class="btn on" data-a="mail">✉ ${esc(L3("E-Mail öffnen", "Open e-mail", "打开邮件"))}</button><button type="button" class="btn" data-a="eml">📎 ${esc(L3("E-Mail mit Produktbild (.eml)", "E-mail with product image (.eml)", "含产品图片的邮件（.eml）"))}</button><button type="button" class="btn" data-a="copy">⧉ ${esc(L3("Text kopieren", "Copy text", "复制文本"))}</button></div>
+      <div class="rfqa" data-all><button type="button" class="btn on" data-a="send">✉ ${esc(L3("E-Mail mit Produktbild", "E-mail with product image", "发送含产品图片的邮件"))}</button><button type="button" class="btn" data-a="copy">⧉ ${esc(L3("Text kopieren", "Copy text", "复制文本"))}</button></div><p class="rfq-tip" data-tip hidden></p>
       <div class="rfq-noe" data-noe></div>
       <div class="rfq-each" data-each hidden></div>
       <div class="rfqa"><button class="btn" value="close">${esc(L3("Schließen", "Close", "关闭"))}</button></div>
-      <p class="muted rfqn">${esc(L3("Die .eml-Datei öffnet sich in Outlook als Entwurf mit angehängtem Bild. Anbieter ohne E-Mail: Text kopieren und über Website oder das Made-in-China-Anfrageformular (↗) senden.", "The .eml file opens in Outlook as a draft with the image attached. Vendors without e-mail: copy the text and send it via the website or the Made-in-China inquiry form (↗).", "该.eml文件在Outlook中以草稿形式打开并附带图片。无邮箱的供应商：复制文本，通过网站或中国制造网询盘表单（↗）发送。"))}</p></form>`;
+      <p class="muted rfqn">${esc(L3("Produktbild ist immer angehängt. iPad/iPhone: Teilen-Menü → Mail, Empfänger werden kopiert (unter „An“ einfügen). Computer: Entwurf (.eml) für Outlook. Anbieter ohne E-Mail: Text kopieren und über Website oder Made-in-China-Anfrage (↗) senden.", "The product image is always attached. iPad/iPhone: share menu → Mail, recipients are copied (paste into “To”). Computer: draft (.eml) for Outlook. Vendors without e-mail: copy the text and send it via the website or the Made-in-China inquiry (↗).", "产品图片始终作为附件。iPad/iPhone：分享菜单 → 邮件，收件人已复制（粘贴到“收件人”）。电脑：Outlook草稿（.eml）。无邮箱的供应商：复制文本，通过网站或中国制造网询盘（↗）发送。"))}</p></form>`;
     document.body.appendChild(dlg);
     const F = dlg.querySelector("form"), fv = n => F.elements[n];
     dlg.querySelector(".rfq-x").addEventListener("click", () => dlg.close());
@@ -191,7 +191,7 @@
       const q = fv("qty").value.trim(), L = [];
       L.push(v ? `Dear ${v.n} team,` : "Dear Sir or Madam,", "", `we are ${company()} and would like to receive a quotation for the following product, delivery to ${destEN()}:`, "");
       L.push(`Product: ${R.name}`); if (R.model) L.push(`Model / reference: ${R.model}`); if (R.hs) L.push(`HS code (EU): ${R.hs}`);
-      if (R.img_url) L.push(`Reference image: ${R.img_url}`);
+      if (R.img) L.push("Reference image: attached (shows the product type).");
       if (R.specs.length) { L.push("", "Technical requirements:"); R.specs.forEach(([k, val]) => L.push(`- ${k}: ${val}`)); }
       if (R.stds.length) { L.push("", "Required EU standards / certifications:"); R.stds.forEach(([c, t]) => L.push(`- ${c}${t ? " – " + t : ""}`)); }
       let n = 0; const P = s => L.push(`${++n}. ${s}`);
@@ -238,10 +238,10 @@
       const noe = vs.filter(v => !v.e);
       F.querySelector("[data-noe]").innerHTML = !one && noe.length ? `<b>${esc(L3("Ohne E-Mail – Text kopieren und dort senden:", "No e-mail – copy the text and send it there:", "无邮箱 – 复制文本后在此发送："))}</b> ` + noe.map(v => (v.u || v.w) ? `<a href="${esc(v.u || v.w)}" target="_blank" rel="noopener">${esc(v.n)} ↗</a>` : esc(v.n)).join(" · ") : "";
       if (one) F.querySelector("[data-each]").innerHTML = vs.map((v, i) => `<div class="rfq-v"><span><b>${vname(v)}</b><br><span class="muted">${esc(v.e || L3("keine E-Mail", "no e-mail", "无邮箱"))}${v.s ? " · " + esc(L3("Reise", "trip", "行程")) + ": " + esc(v.s) : ""}</span></span><span class="rfqa">`
-        + (v.e ? `<button type="button" class="btn on" data-o="mail" data-i="${i}">✉</button><button type="button" class="btn" data-o="eml" data-i="${i}">📎 .eml</button>` : "")
+        + (v.e ? `<button type="button" class="btn on" data-o="send" data-i="${i}">✉ ${esc(L3("E-Mail", "e-mail", "邮件"))}</button>` : "")
         + ((v.u || v.w) ? `<a class="btn" href="${esc(v.u || v.w)}" target="_blank" rel="noopener">${v.u ? "Made-in-China" : L3("Website", "website", "网站")} ↗</a>` : "")
         + `<button type="button" class="btn" data-o="copy" data-i="${i}">⧉</button></span></div>`).join("")
-        + extra().map((x, i) => `<div class="rfq-v"><span><b>${esc(x)}</b></span><span class="rfqa"><button type="button" class="btn on" data-o="mailx" data-i="${i}">✉</button></span></div>`).join("");
+        + extra().map((x, i) => `<div class="rfq-v"><span><b>${esc(x)}</b></span><span class="rfqa"><button type="button" class="btn on" data-o="sendx" data-i="${i}">✉ ${esc(L3("E-Mail", "e-mail", "邮件"))}</button></span></div>`).join("");
     }
     F.addEventListener("change", build); F.addEventListener("input", e => { if (e.target.name !== "txt") build(); });
     const need = () => { if (!fv("sn").value || !fv("se").value) { fv(fv("sn").value ? "se" : "sn").focus(); return false; } return true; };
@@ -252,17 +252,31 @@
         const body = text(null), bcc = [...vs.filter(v => v.e).map(v => v.e), ...extra()].join(",");
         if (a.dataset.a === "copy") return copy(a, body);
         if (!need()) return;
-        if (a.dataset.a === "mail") return mailto(fv("se").value, bcc, body);
-        return eml(fv("se").value, bcc, body, `RFQ_${R.id}.eml`);
+        return send(fv("se").value, bcc, body, `RFQ_${R.id}.eml`);
       }
-      if (o.dataset.o === "mailx") { if (need()) mailto(extra()[+o.dataset.i], "", text(null)); return; }
+      if (o.dataset.o === "sendx") { if (need()) send(extra()[+o.dataset.i], "", text(null), `RFQ_${R.id}.eml`); return; }
       const v = vs[+o.dataset.i], body = text(v);
       if (o.dataset.o === "copy") return copy(o, body);
       if (!need()) return;
-      if (o.dataset.o === "mail") return mailto(v.e, "", body);
-      return eml(v.e, "", body, `RFQ_${R.id}_${v.n.replace(/[^A-Za-z0-9]+/g, "_").slice(0, 30)}.eml`);
+      return send(v.e, "", body, `RFQ_${R.id}_${v.n.replace(/[^A-Za-z0-9]+/g, "_").slice(0, 30)}.eml`);
     });
-    rb.addEventListener("click", () => { build(); dlg.showModal(); });
+    // product image as a File, prepared when the dialog opens so the share sheet can open straight from the tap (iOS needs the user gesture)
+    let imgFile = null;
+    const prepImg = async () => { if (imgFile || !R.img) return; try { const b = await (await fetch(R.img)).blob(); imgFile = new File([b], `${R.id}.jpg`, { type: b.type || "image/jpeg" }); } catch (x) {} };
+    const tip = msg => { const t = F.querySelector("[data-tip]"); t.textContent = msg; t.hidden = !msg; };
+    function send(to, bcc, body, name) {
+      const touch = matchMedia("(pointer:coarse)").matches;
+      if (touch && imgFile && navigator.canShare && navigator.canShare({ files: [imgFile] })) {
+        const rcpt = [to, bcc].filter(Boolean).join(", ");
+        if (rcpt && navigator.clipboard) navigator.clipboard.writeText(rcpt).catch(() => {});
+        tip(rcpt ? L3("Empfänger kopiert – in Mail unter „An“ einfügen. Produktbild ist angehängt.", "Recipients copied – paste them into “To” in Mail. Product image is attached.", "收件人已复制 – 请粘贴到邮件“收件人”栏。产品图片已附上。") : "");
+        navigator.share({ files: [imgFile], title: subj(), text: subj() + "\n\n" + body }).catch(() => {});
+        return;
+      }
+      tip(L3("Entwurf (.eml) mit Produktbild als Anhang wird heruntergeladen – öffnen in Outlook.", "Draft (.eml) with the product image attached is downloading – open it in Outlook.", "正在下载含产品图片附件的草稿（.eml）– 请用Outlook打开。"));
+      return eml(to, bcc, body, name);
+    }
+    rb.addEventListener("click", () => { build(); dlg.showModal(); prepImg(); });
   }
   // ---------- bauma exhibitor grid (IFA-style): filters on top, paginated cards, profile dialog with the company's product grid
   if (window.BAUMA) {

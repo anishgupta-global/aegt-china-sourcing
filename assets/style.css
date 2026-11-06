@@ -602,3 +602,23 @@ table.spec{font-size:14.5px}
 }
 
 .rfq-tip{margin:0;font-size:13px;color:var(--go);background:#EEF5EF;border:1px solid #CFE3D3;border-radius:var(--r);padding:8px 12px}
+/* ===== Theme v3 (2026-11-06): monochrome like the new AE monogram logo - ink black, warm greys, off-white; no gold ===== */
+:root{--ink:#242424;--ink2:#2E2E2D;--cream:#F6F5F3;--paper:#FFFFFF;--gold:#6E6A64;--gold-d:#4A4743;--muted:#5E5B57;--hair:#E5E2DD;--hair2:#D6D2CB;--land:#EDEBE7;--check:#A57A32}
+body{background:var(--cream)}
+/* dark areas (header, nav, footer, start page): light accents */
+.search button{background:#F4F1EC;color:var(--ink)}
+.langs a.on{background:#F4F1EC;color:var(--ink)}
+nav.main a:hover,nav.main a.on{border-bottom-color:#F4F1EC;color:#fff}
+.logo span{color:#C9C4BC;border-left-color:rgba(244,241,236,.35)}
+.splash .langs a{border-color:rgba(244,241,236,.55)}.splash .langs a:hover{background:#F4F1EC;color:var(--ink)}
+/* light areas: ink as the accent */
+.btn.on,.rfqbox .rfq-open,.mtabs button.on,.bx-chips button.on,.bx-pages button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.pri.must{background:var(--ink);color:#fff}.pri.visit{background:#77736C;color:#fff}.pri.iftime{background:var(--hair);color:var(--ink2)}
+.cm-ord.must,.cm-pin.must span{background:var(--ink)}.cm-ord.visit,.cm-pin.visit span{background:#77736C}.cm-ord.iftime,.cm-pin.iftime span{background:#A9A49C}
+.bx-card.own{border-color:var(--ink);box-shadow:inset 3px 0 0 var(--ink)}
+.tag{background:var(--ink);color:#fff}
+.tierb{border-color:var(--hair2);color:var(--ink2)}.tierb.A{background:var(--ink);border-color:var(--ink);color:#fff}
+.sp-main,.mrow{border-left-color:var(--ink)}
+.rfq-x:hover,.more-btn:hover{border-color:var(--ink);color:var(--ink)}
+.intern>summary svg,.sp-more>summary,.sp-alts>summary,.more>summary,.cm-pd>summary{color:var(--gold-d)}
+a:hover{color:var(--ink);text-decoration:underline;text-decoration-color:var(--hair2)}

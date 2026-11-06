@@ -410,7 +410,7 @@
         tab.innerHTML = `<div class="cm-h">${esc(S.n)}<small>${esc(S.d)} · ${sel.length} ${esc(T.cos)}</small></div>` + ordered.map((c, i) => row(c, i + 1)).join("") + noloc.map(c => row(c, "–")).join("");
         if (map) {
           layer.clearLayers(); const ll = ordered.map(c => P([c.lat, c.lon])), sc = S.c ? P(S.c) : null;
-          if (ll.length) L.polyline(sc ? [sc, ...ll] : ll, { color: "#9C7A4A", weight: 3, opacity: .85, dashArray: "6 6" }).addTo(layer);
+          if (ll.length) L.polyline(sc ? [sc, ...ll] : ll, { color: "#3A3836", weight: 3, opacity: .85, dashArray: "6 6" }).addTo(layer);
           if (sc) L.circleMarker(sc, { radius: 6, color: "#1A1410", weight: 2, fillColor: "#fff", fillOpacity: 1 }).bindTooltip(S.sl || T.start).addTo(layer);
           const dup = {}, spot = c => { const q = P([c.lat, c.lon]), key = c.lat.toFixed(3) + "," + c.lon.toFixed(3), n = dup[key] = (dup[key] || 0) + 1; if (n === 1) return q;
             const a = n * 2.4, r = 0.0022 * Math.sqrt(n); return [q[0] + r * Math.sin(a), q[1] + r * Math.cos(a) * 1.15]; };  // display-only fan-out of identical (city-level) positions

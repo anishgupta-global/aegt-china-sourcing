@@ -582,3 +582,21 @@ table.spec{font-size:14.5px}
 .splash .muted{color:#BDB5A8}
 .splash .langs a{font-weight:600;min-width:120px;text-align:center}
 .splash .langs a:hover{background:var(--gold);color:var(--ink)}
+@media (max-width:900px){.gallery{position:relative}}  /* keep the image frame as positioning context (old rule set it static) */
+/* phone micro-fixes (2026-11-06) */
+.card .t,.card .eb{min-width:0}.card .eb{overflow-wrap:anywhere;line-height:1.35}
+@media (pointer:coarse){
+  input[type=checkbox],input[type=radio]{width:20px;height:20px;flex:0 0 auto}
+  .side label,.grp label{min-height:40px;display:flex;align-items:center;gap:10px}
+  a.nm{display:inline-block;padding-block:6px}
+}
+@media (max-width:640px){
+  .bx-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .bx-card{grid-template-columns:minmax(0,1fr)!important;padding:10px;min-height:0}
+  .bx-card>*{grid-column:1!important}
+  .bx-logo{grid-row:auto!important;width:36px;height:36px;font-size:12px}
+  .bx-logo.im{width:64px;height:34px}
+  .bx-nm{font-size:13px}.bx-booth,.bx-meta{font-size:12px}
+  .bx-row{gap:6px}.bx-row input{flex-basis:100%}.bx-row select{flex:1 1 45%;max-width:none;min-width:0}
+  .bx-chips{gap:5px}.bx-chips button{padding:7px 11px;font-size:12px}
+}

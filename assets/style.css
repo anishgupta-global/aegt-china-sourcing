@@ -622,3 +622,13 @@ nav.main a:hover,nav.main a.on{border-bottom-color:#F4F1EC;color:#fff}
 .rfq-x:hover,.more-btn:hover{border-color:var(--ink);color:var(--ink)}
 .intern>summary svg,.sp-more>summary,.sp-alts>summary,.more>summary,.cm-pd>summary{color:var(--gold-d)}
 a:hover{color:var(--ink);text-decoration:underline;text-decoration-color:var(--hair2)}
+
+/* fixed appointments */
+.aptab td{vertical-align:top;font-size:13.5px}.aptab td:first-child{white-space:nowrap}.aptab [lang=zh]{font-size:13px;color:var(--ink2)}
+.apnotes{margin:8px 0 14px;padding-left:18px;font-size:13px;color:var(--muted);display:grid;gap:3px}
+.cm-ap{display:inline-block;font:600 11.5px var(--text);background:var(--ink);color:#fff;border-radius:10px;padding:1px 8px;margin-right:6px}
+.cm-aptoggle.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+table.spec.aptab{table-layout:fixed}table.spec.aptab th{width:auto}
+.aptab th:nth-child(1){width:96px}.aptab th:nth-child(2){width:19%}.aptab th:nth-child(3){width:25%}.aptab th:nth-child(4){width:33%}
+.aptab td{overflow-wrap:anywhere}
+@media (max-width:760px){table.spec.aptab{table-layout:auto;min-width:720px}}

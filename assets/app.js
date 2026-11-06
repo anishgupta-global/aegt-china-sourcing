@@ -373,7 +373,7 @@
     }
     const row = (c, ord) => `<div class="cm-row" data-k="${esc(c.k)}"><span class="cm-ord ${PRI[c.p][0]}">${ord}</span>`
       + (c.l ? `<img class="cm-logo" src="${c.l}" alt="" loading="lazy">` : `<span class="cm-mono">${esc((c.n || "?")[0])}</span>`)
-      + `<div class="cm-t"><b>${c.h ? `<a href="${c.h}">${esc(c.n)}</a>` : esc(c.n)}</b><small>${esc(c.b ? [c.v, c.b].filter(Boolean).join(" ") : c.loc)}${!c.b && c.pr && c.pr !== "street" ? " · ≈ " + esc(T["prec_" + c.pr] || "") : ""}${!c.b && c.lat == null ? " · –" : ""}</small></div>`
+      + `<div class="cm-t"><b>${c.h ? `<a href="${c.h}">${esc(c.n)}</a>` : esc(c.n)}</b><small>${c.ap ? `<span class="cm-ap">${esc(c.ap)}</span>` : ""}${esc(c.b ? [c.v, c.b].filter(Boolean).join(" ") : c.loc)}${!c.b && c.pr && c.pr !== "street" ? " · ≈ " + esc(T["prec_" + c.pr] || "") : ""}${!c.b && c.lat == null ? " · –" : ""}</small></div>`
       + `<span class="pri ${PRI[c.p][0]}">${esc(PRI[c.p][1])}</span>`
       + (c.cats.length ? `<details class="cm-pd"><summary>${esc(T.products)} (${nprod(c)})</summary>${c.cats.map(g => `<div class="cm-cat"><b>${g.c} · ${esc(g.cn)}</b>${g.it.map(p => `<a href="${p.u}">${esc(p.n)}</a>`).join("")}</div>`).join("")}</details>`
         : `<span class="muted cm-np">${esc(T.noprod)}</span>`) + "</div>";
@@ -383,7 +383,8 @@
     }
     function buildStop(id) {
       const S = C.stops.find(s => "s" + s.id === id), sec = document.getElementById("tab-" + id), on = new Set(["1", "2", "3"]);
-      sec.innerHTML = `<div class="cm-bar">${chipsHTML(S.cos)}<span class="cm-info"></span><a class="cm-gm" target="_blank" rel="noopener">${esc(T.gm)} ↗</a></div>`
+      const hasAp = S.cos.some(c => c.at); let apMode = hasAp;
+      sec.innerHTML = `<div class="cm-bar">${hasAp ? `<button type="button" class="btn cm-aptoggle on">${esc(T.aproute)}</button>` : ""}${chipsHTML(S.cos)}<span class="cm-info"></span><a class="cm-gm" target="_blank" rel="noopener">${esc(T.gm)} ↗</a></div>`
         + `<div class="cm-wrap"><div class="cm-map"></div><aside class="cm-tab"></aside></div>`;
       const box = sec.querySelector(".cm-map"), tab = sec.querySelector(".cm-tab");
       let map = null, layer = null, gcjOn = true;
@@ -401,10 +402,10 @@
       } else box.innerHTML = `<p class="muted" style="padding:20px">${esc(T.nomap)}</p>`;
       const focus = k => { tab.querySelectorAll(".cm-row").forEach(r => r.classList.toggle("hl", r.dataset.k === k)); const r = tab.querySelector(`.cm-row[data-k="${CSS.escape(k)}"]`); if (r) r.scrollIntoView({ block: "nearest" }); };
       function draw() {
-        const sel = S.cos.filter(c => on.has(c.p)), pts = sel.filter(c => c.lat != null), noloc = sel.filter(c => c.lat == null);
-        const ordered = route(pts.map(c => [c.lat, c.lon]), S.c).map(i => pts[i]);
+        const sel = apMode ? S.cos.filter(c => c.at).sort((a, b) => a.at < b.at ? -1 : 1) : S.cos.filter(c => on.has(c.p)), pts = sel.filter(c => c.lat != null), noloc = sel.filter(c => c.lat == null);
+        const ordered = apMode ? pts : route(pts.map(c => [c.lat, c.lon]), S.c).map(i => pts[i]);
         let km = 0, prev = S.c; ordered.forEach(c => { if (prev) km += hav(prev, [c.lat, c.lon]); prev = [c.lat, c.lon]; });
-        sec.querySelector(".cm-info").textContent = T.info.replace("{n}", ordered.length).replace("{km}", Math.round(km));
+        sec.querySelector(".cm-info").textContent = (apMode ? T.apinfo : T.info).replace("{n}", ordered.length).replace("{km}", Math.round(km));
         const gm = sec.querySelector(".cm-gm"), wp = [...new Set(ordered.map(c => c.lat + "," + c.lon))].slice(0, 10);
         gm.href = wp.length ? "https://www.google.com/maps/dir/" + (S.c ? S.c.join(",") + "/" : "") + wp.join("/") : "#"; gm.classList.toggle("hide", !wp.length);
         tab.innerHTML = `<div class="cm-h">${esc(S.n)}<small>${esc(S.d)} · ${sel.length} ${esc(T.cos)}</small></div>` + ordered.map((c, i) => row(c, i + 1)).join("") + noloc.map(c => row(c, "–")).join("");
@@ -419,7 +420,11 @@
           if (!draw.fitted) { if (ll.length) map.fitBounds(L.latLngBounds(sc ? [sc, ...ll] : ll).pad(0.12)); else if (sc) map.setView(sc, 10); draw.fitted = true; }
         }
       }
-      wire(sec, on, draw); draw();
+      wire(sec, on, draw);
+      const apt = sec.querySelector(".cm-aptoggle");
+      if (apt) { apt.addEventListener("click", () => { apMode = !apMode; apt.classList.toggle("on", apMode); sec.querySelectorAll(".bx-chips button").forEach(b => b.disabled = apMode); draw.fitted = false; draw(); }); sec.querySelectorAll(".bx-chips button").forEach(b => b.disabled = apMode); }
+      sec.querySelectorAll(".bx-chips [data-p]").forEach(b => b.addEventListener("click", () => { draw.fitted = false; }));
+      draw();
       return { map };
     }
     function buildBauma() {

@@ -451,3 +451,125 @@ table.spec.bktab td:nth-child(1),table.spec.bktab th:nth-child(1){white-space:no
 .flogo{display:inline-flex;align-items:center;gap:8px}.flogo img{height:26px;width:auto;opacity:.85}
 .splash-logo{display:block;width:min(320px,80vw);height:auto;margin:0 auto 18px}
 @media (max-width:640px){.logo img{height:38px}.logo span{display:none}}
+
+/* ================= Theme v2 (2026-11-06): fonts + colours from the AE Global Traders logo, touch-first (iPad Pro primary) ================= */
+@font-face{font-family:"Italiana";src:url(fonts/italiana.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Montserrat";src:url(fonts/montserrat-vf.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{--ink:#252524;--ink2:#2E2D2B;--cream:#F8F4F1;--paper:#FFFFFF;--gold:#C8A573;--gold-d:#94723F;--muted:#67625B;--hair:#E7E0D6;--hair2:#D9D0C3;--land:#EFE9E0;
+  --display:"Italiana",Georgia,"Songti SC","SimSun",serif;--text:"Montserrat","Segoe UI",system-ui,"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;--r:6px;--navh:48px}
+:lang(zh){--display:"Microsoft YaHei","PingFang SC","Noto Sans SC",serif;--text:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--navh) + 12px)}
+body{font:400 15px/1.62 var(--text);color:var(--ink);background:var(--cream);-webkit-font-smoothing:antialiased}
+a:hover{color:var(--gold-d)}
+.wrap{max-width:1320px;padding-inline:clamp(16px,3vw,32px)}
+/* type scale: Italiana only where it is large enough to read, Montserrat everywhere else */
+h1,h2{font-family:var(--display);font-weight:400;letter-spacing:.01em;color:var(--ink)}
+h1{font-size:clamp(30px,4.2vw,46px);line-height:1.12}
+h2{font-size:clamp(23px,2.6vw,30px);line-height:1.2}
+.block h2,.sec h2,.tstop h2{font-size:clamp(22px,2.2vw,27px)}
+h3{font-family:var(--text);font-weight:600;font-size:16px;letter-spacing:0}
+.pinfo h1{font-size:clamp(28px,3.4vw,40px)}
+.card .nm,.mcard .nm,.mrow .nm,.sp-t .nm,.bx-nm,.cm-t b,.bxp-h h3,.os-h .nm,.rfqf h3{font-family:var(--text);font-weight:600;letter-spacing:0}
+.card .nm{font-size:14.5px;line-height:1.35}
+.mcard .nm,.mrow .nm,.sp-t .nm{font-size:15.5px}
+.bx-nm{font-size:14px;line-height:1.3}.cm-t b{font-size:14px}
+.eb,.pspec h2,.intern-b h4,.bxp h4,.mkplan h3,.cm-grp{font:600 11.5px var(--text);letter-spacing:.2em;color:var(--gold-d)}
+.lead,.pinfo .lead{font-size:16px;line-height:1.6;color:var(--ink2)}
+.muted{color:var(--muted)}
+/* minimum readable sizes (iPad at arm's length) */
+.badge,.rbadge,.tierb,.pri,.bk,.newb,.dec,.tag{font-size:11.5px!important;letter-spacing:.06em}
+.tag{font-size:10.5px!important}
+.bx-st,.credit,.cm-t small,.rfqn,.count,.crumbs,.bx-meta,.bx-booth,.mkhead-s,.cm-note,.rfq-noe{font-size:12.5px}
+table.spec{font-size:14px}table.spec th,table.spec td{padding:9px 10px}
+.ttab th,.ttab td{font-size:13.5px}
+.stats b{font-family:var(--display);font-weight:400}
+/* header + sticky main navigation */
+.top .wrap{padding-block:10px}
+nav.main{position:sticky;top:0;z-index:30;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+nav.main .wrap{scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+nav.main .wrap::-webkit-scrollbar{display:none}
+nav.main a{font:600 13px var(--text);letter-spacing:.04em;padding:14px 14px 12px}
+.search input{font:14px var(--text);border-radius:var(--r) 0 0 var(--r)}
+.search button{font:600 13px var(--text);letter-spacing:.04em;background:var(--gold);color:var(--ink)}
+.langs a{font:600 12px var(--text)}.langs a.on{background:var(--gold);color:var(--ink)}
+.btn{font-family:var(--text);font-weight:600;border-radius:var(--r)}
+/* sticky elements sit below the sticky nav */
+.bx-bar{top:var(--navh)}.side,.panel{top:calc(var(--navh) + 12px)}
+.pdp>div:first-child{top:calc(var(--navh) + 12px)}
+/* cards + surfaces: softer radius, calmer shadows */
+.card,.mcard,.block,.pricebox,.sp-main,.sp-alts,.intern,.pspec,.bx-card,.cm-tab,.cm-map,.side,.panel,.onestop{border-radius:var(--r)}
+.card:hover,.bx-card:hover{box-shadow:0 10px 28px rgba(37,37,36,.10)}
+/* pagination button + collapsible sections */
+.more-btn{display:block;margin:18px auto 6px;min-height:44px;padding:10px 26px;border:1px solid var(--hair2);background:#fff;color:var(--ink);font:600 13.5px var(--text);border-radius:var(--r);cursor:pointer}
+.more-btn:hover{border-color:var(--gold)}
+details.mksec>summary,details.tfold>summary{list-style:none;cursor:pointer}
+details.mksec>summary::-webkit-details-marker,details.tfold>summary::-webkit-details-marker{display:none}
+details.mksec>summary h2::after{content:"\25BE";font:16px var(--text);color:var(--gold-d);margin-left:10px;vertical-align:4px;display:inline-block;transition:transform .15s}
+details.mksec[open]>summary h2::after{transform:rotate(180deg)}
+details.tfold{display:block}
+details.tfold>summary .tsh::after{content:"\25BE";margin-left:auto;font:18px var(--text);color:var(--gold-d);transition:transform .15s}
+details.tfold[open]>summary .tsh::after{transform:rotate(180deg)}
+details.tfold>summary .tsh{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px}
+details.tfold:not([open]){padding-bottom:6px}
+.tbody{padding-top:4px}
+/* dialogs fit the screen and scroll inside */
+.rfqdlg,.bxdlg{max-height:92dvh;overflow:auto;overscroll-behavior:contain}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* touch devices (iPad, phones): >= 44 px targets, no hover lift */
+@media (pointer:coarse){
+  nav.main a{padding:15px 16px 13px}
+  .langs a{padding:10px 12px}
+  .search input,.search button{min-height:44px}
+  .btn,.bx-chips button,.mtabs button,.bx-pages button,select,input[type=search],input[type=text],input[type=email]{min-height:44px}
+  .bx-chips button{padding:9px 15px}
+  .more>summary,.cm-pd>summary,.sp-more>summary,.sp-alts>summary,.intern>summary,details>summary{min-height:44px;align-items:center}
+  .more>summary,.cm-pd>summary{display:inline-flex;padding-block:10px}
+  table.spec td a,.pn,.gm,.tags a,.cm-cat a,.bxp-cats a,.bxp-l a,.crumbs a,.flogo,.credit a{display:inline-block;padding-block:9px}
+  .cm-cat{gap:0}.cm-cat a{padding-block:10px;border-bottom:1px solid var(--hair)}
+  .rfqf .rv{padding-block:6px}.rfqf input[type=checkbox],.rfqf input[type=radio]{width:20px;height:20px}
+  .card:hover,.bx-card:hover{transform:none}
+}
+/* iPad Pro 12.9" landscape (1366) and desktop: generous 4-5 column grids */
+@media (min-width:1200px){.grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}}
+/* iPad Pro portrait (1024) / iPad 11" landscape: 3 columns beside the filter, comfortable product page */
+@media (min-width:900px) and (max-width:1199px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+  .pdp{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:24px}
+  .cm-wrap{grid-template-columns:minmax(0,1.15fr) minmax(330px,1fr)}
+}
+/* iPad 11" portrait (834) and small tablets */
+@media (min-width:641px) and (max-width:899px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .bx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* phones */
+@media (max-width:640px){
+  body{font-size:14.5px}
+  .top .wrap{flex-wrap:wrap;gap:8px 12px;padding-block:8px}
+  .logo img{height:36px}
+  .search{order:3;flex-basis:100%;max-width:none}
+  .langs{margin-left:auto}
+  .grid,.bxp-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .card .t{padding:9px;gap:4px}.card .nm{font-size:13px}.card .mk{display:none}
+  .prices{font-size:11px;gap:4px}.prices b{font-size:13.5px}
+  .card .img img{padding:8px}
+  .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .phead p{font-size:14.5px}
+  h1{font-size:30px}
+  .rfqdlg,.bxdlg{width:100%;max-width:none;margin:0;max-height:100dvh;height:100dvh;border-radius:0}
+}
+/* readability pass (2026-11-06): Italiana only in the logo; headings in Montserrat SemiBold (same family as the GLOBAL TRADERS wordmark) */
+:root{--display:"Montserrat","Segoe UI",system-ui,"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;--gold-d:#7A5C30;--muted:#5E5952}
+h1,h2{font-family:var(--text);font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+h1{font-size:clamp(27px,3.3vw,38px);line-height:1.18}
+h2{font-size:clamp(20px,2.1vw,25px);line-height:1.25}
+.block h2,.sec h2,.tstop h2{font-size:clamp(19px,1.9vw,22px)}
+.pinfo h1{font-size:clamp(25px,2.9vw,34px)}
+.stats b{font-family:var(--text);font-weight:600}
+body{font-size:16px;line-height:1.65}
+.eb,.pspec h2,.intern-b h4,.bxp h4,.mkplan h3,.cm-grp{font-size:12px;letter-spacing:.16em;color:var(--gold-d)}
+.card .nm{font-size:15px;font-weight:600}
+.lead,.pinfo .lead,.phead p{font-size:16.5px;color:var(--ink2)}
+table.spec{font-size:14.5px}
+@media (max-width:640px){body{font-size:15px}h1{font-size:26px}.card .nm{font-size:13.5px}}
+.card .nm,.bx-nm,.cm-t b,.mcard .nm,h1,h2{overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto}

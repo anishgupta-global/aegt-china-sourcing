@@ -9,24 +9,30 @@
     if (!root) return;
     const items = $$("[data-item]", root.closest("main") || document);
     const counter = $("[data-count]", root.closest("main") || document);
-    const apply = () => {
+    const box = items.length ? items[0].parentElement : null, lim0 = box && box.dataset.limit ? +box.dataset.limit : 0;
+    let lim = lim0, more = null;
+    if (lim0) { more = document.createElement("button"); more.type = "button"; more.className = "btn more-btn"; box.after(more); more.addEventListener("click", () => { lim += lim0; apply(true); }); }
+    const apply = (keep) => {
+      if (!keep) lim = lim0;
       const want = {};
       $$("[data-f]", root).forEach(el => {
         const k = el.dataset.f;
         if (el.type === "checkbox") { if (el.checked) (want[k] = want[k] || []).push(el.value); }
         else if (el.value) want[k] = [el.value];
       });
-      let n = 0; const qe = $("[data-q]", root), q = qe ? qe.value.trim().toLowerCase() : "";
+      let n = 0, shown = 0; const qe = $("[data-q]", root), q = qe ? qe.value.trim().toLowerCase() : "";
       items.forEach(it => {
         const ok = (!q || (it.dataset.k || "").includes(q)) && Object.entries(want).every(([k, vals]) => {
           const have = (it.dataset[k] || "").split("|");
           return vals.some(v => have.includes(v));
         });
-        it.classList.toggle("hide", !ok); if (ok) n++;
+        const vis = ok && (!lim || shown < lim); if (vis) shown++;
+        it.classList.toggle("hide", !vis); if (ok) n++;
       });
-      if (counter) counter.textContent = counter.dataset.tpl.replace("{n}", n).replace("{t}", items.length);
+      if (more) { more.hidden = n - shown <= 0; more.textContent = `${box.dataset.more || "+"} (${n - shown})`; }
+      if (counter) counter.textContent = counter.dataset.tpl.replace("{n}", lim0 ? shown : n).replace("{t}", lim0 ? n : items.length);
     };
-    root.addEventListener("change", apply); root.addEventListener("input", e => { if (e.target.matches("[data-q]")) apply(); });
+    root.addEventListener("change", () => apply()); root.addEventListener("input", e => { if (e.target.matches("[data-q]")) apply(); });
     const reset = $("[data-reset]", root);
     if (reset) reset.addEventListener("click", () => { $$("[data-f]", root).forEach(el => el.type === "checkbox" ? el.checked = false : el.value = ""); const qe = $("[data-q]", root); if (qe) qe.value = ""; apply(); });
     const qs = new URLSearchParams(location.search);
@@ -34,6 +40,10 @@
     apply();
   }
   setupFilter($("#filters"));
+
+  /* ---------- trip page: stops are collapsible; open the one the overview / URL points to ---------- */
+  const openStop = () => { const t = location.hash && document.getElementById(location.hash.slice(1)); if (t && t.matches("details.tfold")) { t.open = true; t.scrollIntoView({ block: "start" }); } };
+  if ($("details.tfold")) { openStop(); window.addEventListener("hashchange", openStop); }
 
   /* ---------- search ---------- */
   const sres = $("#search-results");

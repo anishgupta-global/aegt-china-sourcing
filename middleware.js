@@ -3,6 +3,7 @@
 import { next } from '@vercel/functions';
 
 export default function middleware(request) {
+  if (process.env.AUTH_DISABLED === '1') return next();  // login switched off (Vercel env AUTH_DISABLED=1); remove the variable + redeploy to switch it on again
   const user = process.env.BASIC_AUTH_USER, pass = process.env.BASIC_AUTH_PASS;
   if (!user || !pass) return new Response('Locked: login not configured', { status: 503 });
   const [scheme, enc] = (request.headers.get('authorization') || '').split(' ');

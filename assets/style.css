@@ -577,3 +577,8 @@ table.spec{font-size:14.5px}
 .rfq-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--paper);margin:-18px -20px 0;padding:14px 20px 10px;border-bottom:1px solid var(--hair)}
 .rfq-x{flex:0 0 auto;width:44px;height:44px;border:1px solid var(--hair2);border-radius:50%;background:#fff;color:var(--ink);font:300 26px/1 var(--text);cursor:pointer;display:grid;place-items:center;padding:0}
 .rfq-x:hover{border-color:var(--gold);color:var(--gold-d)}
+/* language start page (dark): light logo + light text */
+.splash h1{color:var(--cream);font-size:clamp(20px,2.6vw,28px);font-weight:500;letter-spacing:.02em}
+.splash .muted{color:#BDB5A8}
+.splash .langs a{font-weight:600;min-width:120px;text-align:center}
+.splash .langs a:hover{background:var(--gold);color:var(--ink)}

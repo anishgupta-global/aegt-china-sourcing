@@ -573,3 +573,7 @@ body{font-size:16px;line-height:1.65}
 table.spec{font-size:14.5px}
 @media (max-width:640px){body{font-size:15px}h1{font-size:26px}.card .nm{font-size:13.5px}}
 .card .nm,.bx-nm,.cm-t b,.mcard .nm,h1,h2{overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto}
+/* RFQ overlay: close (×) always visible at the top */
+.rfq-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--paper);margin:-18px -20px 0;padding:14px 20px 10px;border-bottom:1px solid var(--hair)}
+.rfq-x{flex:0 0 auto;width:44px;height:44px;border:1px solid var(--hair2);border-radius:50%;background:#fff;color:var(--ink);font:300 26px/1 var(--text);cursor:pointer;display:grid;place-items:center;padding:0}
+.rfq-x:hover{border-color:var(--gold);color:var(--gold-d)}

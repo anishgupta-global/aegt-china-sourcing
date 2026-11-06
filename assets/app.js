@@ -148,7 +148,7 @@
     const vrows = R.vendors.map((v, i) => `<label class="rv"><input type="checkbox" name="rv" value="${i}" checked><span><b>${vname(v)}</b>${plink(v)}<br><span class="muted">${esc(ROLE[v.r] || "")}${v.s ? " · " + esc(L3("Reise", "trip", "行程")) + ": " + esc(v.s) + (v.sd ? " (" + esc(v.sd) + ")" : "") : ""} · ${v.e ? esc(v.e) : esc(L3("keine E-Mail – über Website/Made-in-China", "no e-mail – via website/Made-in-China", "无邮箱 – 通过网站/中国制造网"))}</span></span></label>`).join("")
       || `<p class="muted">${esc(L3("Kein Hersteller hinterlegt – Empfänger unten eintragen.", "No manufacturer on file – enter recipients below.", "未登记制造商，请在下方填写收件人。"))}</p>`;
     const INC = ["EXW", "FOB", "CIF", "DAP", "DDP"];
-    dlg.innerHTML = `<form method="dialog" class="rfqf"><h3>${esc(L3("Angebot anfragen", "Request a quotation", "询价"))}</h3><p class="muted">${esc(R.name)}${R.model ? " · " + esc(R.model) : ""}</p>
+    dlg.innerHTML = `<form method="dialog" class="rfqf"><div class="rfq-head"><h3>${esc(L3("Angebot anfragen", "Request a quotation", "询价"))}</h3><button type="button" class="rfq-x" aria-label="${esc(L3("Schließen", "Close", "关闭"))}" title="${esc(L3("Schließen", "Close", "关闭"))}">×</button></div><p class="muted">${esc(R.name)}${R.model ? " · " + esc(R.model) : ""}</p>
       <fieldset><legend>${esc(L3("Anbieter", "Vendors", "供应商"))} (${R.vendors.length})</legend><div class="rvl">${vrows}</div>
       <input name="to" type="text" placeholder="${esc(L3("weitere E-Mail-Adressen (mit Komma trennen)", "more e-mail addresses (comma-separated)", "其他邮箱（逗号分隔）"))}"></fieldset>
       <fieldset><legend>${esc(L3("Lieferung & Konditionen", "Delivery & terms", "交货与条款"))}</legend>
@@ -171,6 +171,8 @@
       <p class="muted rfqn">${esc(L3("Die .eml-Datei öffnet sich in Outlook als Entwurf mit angehängtem Bild. Anbieter ohne E-Mail: Text kopieren und über Website oder das Made-in-China-Anfrageformular (↗) senden.", "The .eml file opens in Outlook as a draft with the image attached. Vendors without e-mail: copy the text and send it via the website or the Made-in-China inquiry form (↗).", "该.eml文件在Outlook中以草稿形式打开并附带图片。无邮箱的供应商：复制文本，通过网站或中国制造网询盘表单（↗）发送。"))}</p></form>`;
     document.body.appendChild(dlg);
     const F = dlg.querySelector("form"), fv = n => F.elements[n];
+    dlg.querySelector(".rfq-x").addEventListener("click", () => dlg.close());
+    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });  // tap on the dimmed backdrop closes too
     ["sn", "sc", "se", "sp"].forEach(n => { const v = LS(n); if (v) fv(n).value = v; fv(n).addEventListener("input", () => { SV(n, fv(n).value); build(); }); });
     const sel = () => [...F.querySelectorAll("input[name=rv]:checked")].map(x => R.vendors[+x.value]);
     const extra = () => fv("to").value.split(/[,;\s]+/).map(x => x.trim()).filter(x => /@/.test(x));

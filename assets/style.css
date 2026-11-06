@@ -431,3 +431,16 @@ a.nm[target="_blank"]:hover{color:var(--gold-d)}
 .tstop .hotel{margin:4px 0 10px;font-size:13.5px}
 table.spec.bktab th{width:auto}table.spec.bktab td,table.spec.bktab th{padding:7px 10px;vertical-align:middle}
 table.spec.bktab td:nth-child(1),table.spec.bktab th:nth-child(1){white-space:nowrap;width:170px}table.spec.bktab td:nth-child(2),table.spec.bktab th:nth-child(2){width:90px}table.spec.bktab td:nth-child(2){color:var(--muted)}table.spec.bktab td:nth-child(3){font-weight:700;color:var(--ink2)}
+
+/* RFQ dialog v2: vendors with checkboxes, delivery/Incoterms rows, together vs. one by one */
+.rvl{display:grid;gap:6px;max-height:240px;overflow:auto}
+.rfqf .rv{align-items:flex-start;flex-wrap:nowrap}.rfqf .rv input{margin-top:3px}.rfqf .rv .muted{font-size:12px}
+.rfq-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13.5px}.rfq-row b{min-width:92px;font-size:12.5px}
+.rfq-row label{gap:5px}
+.rfq-mode{display:grid;gap:4px;font-size:13.5px;border:1px solid var(--hair);border-radius:var(--r);padding:8px 12px;background:#FBF8F2}
+.rfq-noe{font-size:12.5px;line-height:1.6}
+.rfq-each{display:grid;gap:6px}.rfq-v{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--hair);border-radius:var(--r);padding:7px 10px;font-size:13px}
+.rfq-v .btn{padding:4px 9px;font-size:12.5px}
+.rfqf [hidden]{display:none!important}
+
+.rv-c{font-weight:700;color:var(--gold-d)}.rfqf .rv a{text-decoration:underline;text-decoration-color:var(--hair2)}.rv-p{font-size:12px;margin-left:4px}

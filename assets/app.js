@@ -124,66 +124,124 @@
     setVB2(); draw();
   }
 
-  /* ---------- RFQ (request for quotation): vendor e-mail from a fixed template ---------- */
+  /* ---------- RFQ (request for quotation): up to 6 vendors, delivery Germany/Serbia, Incoterms, freight, together (BCC) or one by one ---------- */
   const rb = $("[data-rfq]");
   if (rb && window.RFQ) {
     const R = window.RFQ, LS = k => { try { return localStorage.getItem("rfq_" + k) || ""; } catch (e) { return ""; } };
     const SV = (k, v) => { try { localStorage.setItem("rfq_" + k, v); } catch (e) {} };
     const de = document.documentElement.lang.startsWith("de"), zh = document.documentElement.lang.startsWith("zh");
     const L3 = (a, b, c) => de ? a : zh ? c : b;
+    const ROLE = { supplier: L3("Anbieter", "supplier", "供应商"), alternative: L3("Alternative", "alternative", "备选"), cat: L3("Katalog · ähnliches Produkt", "catalogue · similar product", "目录 · 类似产品"), mic: L3("weitere · Made-in-China, ungeprüft", "more · Made-in-China, unverified", "更多 · 中国制造网，未核实") };
     const dlg = document.createElement("dialog"); dlg.className = "rfqdlg";
-    const vopts = R.vendors.map((v, i) => `<label class="rv"><input type="radio" name="rv" value="${i}" ${i === 0 ? "checked" : ""}> <b>${esc(v.n)}</b> <span class="muted">${esc(v.r === "supplier" ? L3("Anbieter", "supplier", "供应商") : L3("Alternative", "alternative", "备选"))} · ${v.e ? esc(v.e) : esc(L3("keine E-Mail im Katalog", "no e-mail in catalogue", "目录中无邮箱"))}</span></label>`).join("") ||
-      `<p class="muted">${esc(L3("Kein Hersteller hinterlegt – Empfänger selbst eintragen.", "No manufacturer on file – enter the recipient yourself.", "未登记制造商，请自行填写收件人。"))}</p>`;
+    const vname = v => `${v.c ? `<span class="rv-c">${esc(v.c)}</span> · ` : ""}${v.w ? `<a href="${esc(v.w)}" target="_blank" rel="noopener">${esc(v.n)} ↗</a>` : esc(v.n)}`;
+    const plink = v => v.u ? ` <a class="rv-p" href="${esc(v.u)}" target="_blank" rel="noopener">${esc(L3("Produkt", "product", "产品"))} ↗</a>` : "";
+    const vrows = R.vendors.map((v, i) => `<label class="rv"><input type="checkbox" name="rv" value="${i}" checked><span><b>${vname(v)}</b>${plink(v)}<br><span class="muted">${esc(ROLE[v.r] || "")}${v.s ? " · " + esc(L3("Reise", "trip", "行程")) + ": " + esc(v.s) + (v.sd ? " (" + esc(v.sd) + ")" : "") : ""} · ${v.e ? esc(v.e) : esc(L3("keine E-Mail – über Website/Made-in-China", "no e-mail – via website/Made-in-China", "无邮箱 – 通过网站/中国制造网"))}</span></span></label>`).join("")
+      || `<p class="muted">${esc(L3("Kein Hersteller hinterlegt – Empfänger unten eintragen.", "No manufacturer on file – enter recipients below.", "未登记制造商，请在下方填写收件人。"))}</p>`;
+    const INC = ["EXW", "FOB", "CIF", "DAP", "DDP"];
     dlg.innerHTML = `<form method="dialog" class="rfqf"><h3>${esc(L3("Angebot anfragen", "Request a quotation", "询价"))}</h3><p class="muted">${esc(R.name)}${R.model ? " · " + esc(R.model) : ""}</p>
-      <fieldset><legend>${esc(L3("Empfänger", "Recipient", "收件人"))}</legend>${vopts}<input name="to" type="email" placeholder="${esc(L3("E-Mail des Herstellers", "Manufacturer e-mail", "制造商邮箱"))}"></fieldset>
-      <fieldset><legend>${esc(L3("Anfrage", "Request", "询价内容"))}</legend><label>${esc(L3("Mengen (Staffel)", "Quantities (tiers)", "数量（阶梯）"))} <input name="qty" value="100 / 500 / 1,000"></label>
-      <label>Incoterms <select name="inc"><option>FOB China port</option><option>CIF Hamburg</option><option>DDP Germany</option></select></label>
+      <fieldset><legend>${esc(L3("Anbieter", "Vendors", "供应商"))} (${R.vendors.length})</legend><div class="rvl">${vrows}</div>
+      <input name="to" type="text" placeholder="${esc(L3("weitere E-Mail-Adressen (mit Komma trennen)", "more e-mail addresses (comma-separated)", "其他邮箱（逗号分隔）"))}"></fieldset>
+      <fieldset><legend>${esc(L3("Lieferung & Konditionen", "Delivery & terms", "交货与条款"))}</legend>
+      <div class="rfq-row"><b>${esc(L3("Lieferland", "Deliver to", "交货国家"))}</b><label><input type="radio" name="dest" value="RS" checked> ${esc(L3("Serbien", "Serbia", "塞尔维亚"))}</label><label><input type="radio" name="dest" value="DE"> ${esc(L3("Deutschland", "Germany", "德国"))}</label></div>
+      <div class="rfq-row"><b>Incoterms</b>${INC.map(x => `<label><input type="checkbox" name="inc" value="${x}" ${x === "FOB" || x === "DAP" ? "checked" : ""}> ${x}</label>`).join("")}<label><input type="checkbox" name="incpref" checked> ${esc(L3("Lieferant nennt sein bevorzugtes Incoterm", "supplier states preferred Incoterm", "供应商说明首选贸易术语"))}</label></div>
+      <div class="rfq-row"><b>${esc(L3("Transport", "Freight", "运输"))}</b><label><input type="checkbox" name="sea" checked> ${esc(L3("Seefracht", "sea", "海运"))}</label><label><input type="checkbox" name="air" checked> ${esc(L3("Luftfracht", "air", "空运"))}</label></div>
+      <label>${esc(L3("Mengen (Staffel)", "Quantities (tiers)", "数量（阶梯）"))} <input name="qty" value="100 / 500 / 1,000"></label>
       <label>${esc(L3("Private Label (Eigenmarke)", "Private label (own brand)", "贴牌（自有品牌）"))} <select name="oem"><option value="yes">${esc(L3("ja, anfragen", "yes, ask", "是，询问"))}</option><option value="no">${esc(L3("nein", "no", "否"))}</option></select></label>
+      <label><input type="checkbox" name="meet" checked> ${esc(L3("Treffen / Werksbesuch während der China-Reise anfragen", "ask for a meeting / factory visit during the China trip", "询问中国行程期间会面/参观工厂"))}</label>
       <label><input type="checkbox" name="zh" checked> ${esc(L3("chinesische Zusammenfassung anhängen", "add Chinese summary", "附中文摘要"))}</label></fieldset>
       <fieldset><legend>${esc(L3("Absender (wird im Browser gespeichert)", "Sender (saved in this browser)", "发件人（保存在本浏览器）"))}</legend>
       <input name="sn" placeholder="${esc(L3("Name", "Name", "姓名"))}" required><input name="sc" placeholder="${esc(L3("Firma", "Company", "公司"))}" value="AE Global Traders"><input name="se" type="email" placeholder="${esc(L3("Ihre E-Mail", "Your e-mail", "您的邮箱"))}" required><input name="sp" placeholder="${esc(L3("Telefon (optional)", "Phone (optional)", "电话（可选）"))}"></fieldset>
+      <div class="rfq-mode"><label><input type="radio" name="mode" value="all" checked> <b>${esc(L3("Zusammen", "Together", "合并"))}</b> – ${esc(L3("eine E-Mail an alle (Empfänger in BCC)", "one e-mail to all (recipients in BCC)", "一封邮件发给所有人（密送）"))}</label>
+      <label><input type="radio" name="mode" value="one"> <b>${esc(L3("Einzeln", "One by one", "逐个"))}</b> – ${esc(L3("je Anbieter eine persönliche E-Mail", "one personal e-mail per vendor", "每个供应商一封个性化邮件"))}</label></div>
       <textarea name="txt" rows="9" readonly></textarea>
-      <div class="rfqa"><button type="button" class="btn on" data-a="mail">✉ ${esc(L3("E-Mail öffnen", "Open e-mail", "打开邮件"))}</button><button type="button" class="btn" data-a="eml">📎 ${esc(L3("E-Mail mit Produktbild (.eml)", "E-mail with product image (.eml)", "含产品图片的邮件（.eml）"))}</button><button type="button" class="btn" data-a="copy">⧉ ${esc(L3("Text kopieren", "Copy text", "复制文本"))}</button><button class="btn" value="close">${esc(L3("Schließen", "Close", "关闭"))}</button></div>
-      <p class="muted rfqn">${esc(L3("Die .eml-Datei öffnet sich in Outlook als Entwurf mit angehängtem Bild. Ohne Hersteller-E-Mail: Text kopieren und über Website oder Made-in-China-Kontaktformular senden.", "The .eml file opens in Outlook as a draft with the image attached. Without a manufacturer e-mail: copy the text and send it via the website or the Made-in-China contact form.", "该.eml文件在Outlook中以草稿形式打开并附带图片。若无制造商邮箱：复制文本并通过网站或Made-in-China联系表单发送。"))}</p></form>`;
+      <div class="rfqa" data-all><button type="button" class="btn on" data-a="mail">✉ ${esc(L3("E-Mail öffnen", "Open e-mail", "打开邮件"))}</button><button type="button" class="btn" data-a="eml">📎 ${esc(L3("E-Mail mit Produktbild (.eml)", "E-mail with product image (.eml)", "含产品图片的邮件（.eml）"))}</button><button type="button" class="btn" data-a="copy">⧉ ${esc(L3("Text kopieren", "Copy text", "复制文本"))}</button></div>
+      <div class="rfq-noe" data-noe></div>
+      <div class="rfq-each" data-each hidden></div>
+      <div class="rfqa"><button class="btn" value="close">${esc(L3("Schließen", "Close", "关闭"))}</button></div>
+      <p class="muted rfqn">${esc(L3("Die .eml-Datei öffnet sich in Outlook als Entwurf mit angehängtem Bild. Anbieter ohne E-Mail: Text kopieren und über Website oder das Made-in-China-Anfrageformular (↗) senden.", "The .eml file opens in Outlook as a draft with the image attached. Vendors without e-mail: copy the text and send it via the website or the Made-in-China inquiry form (↗).", "该.eml文件在Outlook中以草稿形式打开并附带图片。无邮箱的供应商：复制文本，通过网站或中国制造网询盘表单（↗）发送。"))}</p></form>`;
     document.body.appendChild(dlg);
     const F = dlg.querySelector("form"), fv = n => F.elements[n];
     ["sn", "sc", "se", "sp"].forEach(n => { const v = LS(n); if (v) fv(n).value = v; fv(n).addEventListener("input", () => { SV(n, fv(n).value); build(); }); });
-    const vend = () => { const r = F.querySelector("input[name=rv]:checked"); return r ? R.vendors[+r.value] : null; };
-    const subj = () => `RFQ – ${R.name}${R.model ? " (" + R.model + ")" : ""} – ${fv("sc").value || "AE Global Traders"}`;
-    function text() {
-      const v = vend(), q = fv("qty").value.trim(), inc = fv("inc").value;
-      const L = [];
-      L.push(`Dear ${v ? v.n : "Sir or Madam"} team,`, "", `we are ${fv("sc").value || "AE Global Traders"} and would like to receive a quotation for the following product (delivery to Germany):`, "");
+    const sel = () => [...F.querySelectorAll("input[name=rv]:checked")].map(x => R.vendors[+x.value]);
+    const extra = () => fv("to").value.split(/[,;\s]+/).map(x => x.trim()).filter(x => /@/.test(x));
+    const dest = () => F.querySelector("input[name=dest]:checked").value;
+    const incs = () => [...F.querySelectorAll("input[name=inc]:checked")].map(x => x.value);
+    const destEN = () => dest() === "RS" ? "Serbia (Belgrade)" : "Germany", destZH = () => dest() === "RS" ? "塞尔维亚（贝尔格莱德）" : "德国";
+    const company = () => fv("sc").value || "AE Global Traders";
+    const subj = () => `RFQ – ${R.name}${R.model ? " (" + R.model + ")" : ""} – delivery to ${dest() === "RS" ? "Serbia" : "Germany"} – ${company()}`;
+    const incText = () => {
+      const place = { EXW: "EXW your factory", FOB: "FOB China port (please name the port)", CIF: `CIF port of destination for ${destEN()} (please name the port)`, DAP: `DAP ${destEN()}`, DDP: `DDP ${destEN()}` };
+      const l = incs().map(x => place[x]);
+      return (l.length ? "price basis " + l.join(" / ") : "your price basis") + (fv("incpref").checked ? " – and please tell us which Incoterm you prefer" : "");
+    };
+    const freight = () => fv("sea").checked && fv("air").checked ? "sea freight and air freight" : fv("air").checked ? "air freight" : fv("sea").checked ? "sea freight" : "";
+    function text(v) {
+      const q = fv("qty").value.trim(), L = [];
+      L.push(v ? `Dear ${v.n} team,` : "Dear Sir or Madam,", "", `we are ${company()} and would like to receive a quotation for the following product, delivery to ${destEN()}:`, "");
       L.push(`Product: ${R.name}`); if (R.model) L.push(`Model / reference: ${R.model}`); if (R.hs) L.push(`HS code (EU): ${R.hs}`);
       if (R.img_url) L.push(`Reference image: ${R.img_url}`);
       if (R.specs.length) { L.push("", "Technical requirements:"); R.specs.forEach(([k, val]) => L.push(`- ${k}: ${val}`)); }
       if (R.stds.length) { L.push("", "Required EU standards / certifications:"); R.stds.forEach(([c, t]) => L.push(`- ${c}${t ? " – " + t : ""}`)); }
-      L.push("", "Please quote:", `1. Unit price for ${q || "100 / 500 / 1,000"} units (tiered pricing, currency USD or EUR)`, "2. Minimum order quantity (MOQ)" + (R.moq ? ` – our information: ${R.moq}` : ""),
-        "3. Sample availability, cost and lead time", "4. Production and delivery lead time",
-        "5. Compliance documents: EU Declaration of Conformity, test reports from an accredited laboratory for the standards above, REACH/RoHS where applicable",
-        `6. Packaging details${fv("oem").value === "yes" ? " and private-label (OEM/ODM) options for our own brand" : ""}`, `7. Incoterms ${inc} incl. estimated freight to Germany`, "8. Payment terms and validity of the offer", "",
-        "Please confirm that you are the manufacturer (factory) and send your business licence and factory address.", "", "Kind regards,", fv("sn").value || "[Name]", fv("sc").value || "", fv("se").value || "[E-mail]");
-      if (fv("sp").value) L.push(fv("sp").value);
-      if (fv("zh").checked) L.push("", "——", `您好！我们是${fv("sc").value || "AE Global Traders"}，希望就以下产品询价（交货至德国）：${R.name_zh || R.name}${R.model ? "（型号 " + R.model + "）" : ""}。请提供 ${q || "100/500/1000"} 件的阶梯价、最小起订量、样品、交期、欧盟合规文件（CE符合性声明、认可实验室检测报告、REACH/RoHS）、包装及贴牌方案，以及 ${inc} 报价。谢谢！`);
+      let n = 0; const P = s => L.push(`${++n}. ${s}`);
+      L.push("", "Please quote:");
+      P(`Unit price for ${q || "100 / 500 / 1,000"} units (tiered pricing, currency USD or EUR)`); P("Minimum order quantity (MOQ)" + (R.moq ? ` – our information: ${R.moq}` : ""));
+      P("Sample availability, cost and lead time"); P("Production and delivery lead time");
+      P("Compliance documents: EU Declaration of Conformity, test reports from an accredited laboratory for the standards above, REACH/RoHS where applicable");
+      P(`Packaging details${fv("oem").value === "yes" ? " and private-label (OEM/ODM) options for our own brand" : ""}`);
+      P(`Incoterms: ${incText()}`);
+      if (freight()) P(`Freight: please quote ${freight()} to ${destEN()} incl. transit time`);
+      P("Payment terms and validity of the offer");
+      L.push("", "Please confirm that you are the manufacturer (factory) and send your business licence and factory address.");
+      if (fv("meet").checked) L.push("", v && v.s ? `We will be in ${v.s} on ${v.sd} 2026 and would like to meet you and visit your factory – please let us know a suitable time and the factory address.`
+        : "We will be in China from 15 to 27 November 2026 (Guangzhou, Foshan, Shenzhen, Yiwu, Shanghai incl. bauma CHINA) and would be glad to meet you or visit your factory – please let us know your availability.");
+      L.push("", "Kind regards,", fv("sn").value || "[Name]", company(), fv("se").value || "[E-mail]"); if (fv("sp").value) L.push(fv("sp").value);
+      if (fv("zh").checked) {
+        const tr_ = { sea: fv("sea").checked, air: fv("air").checked };
+        L.push("", "——", `您好！我们是${company()}，希望就以下产品询价（交货至${destZH()}）：${R.name_zh || R.name}${R.model ? "（型号 " + R.model + "）" : ""}。请提供 ${q || "100/500/1000"} 件的阶梯价、最小起订量、样品、交期、欧盟合规文件（CE符合性声明、认可实验室检测报告、REACH/RoHS）、包装及贴牌方案；贸易术语：${incs().join(" / ") || "请报价"}${fv("incpref").checked ? "，并请说明贵司首选的贸易术语" : ""}${tr_.sea || tr_.air ? "；运费：" + [tr_.sea ? "海运" : "", tr_.air ? "空运" : ""].filter(Boolean).join("和") + "至" + destZH() : ""}。` + (fv("meet").checked ? (v && v.s ? `我们将于2026年${v.sd}在${v.s}，希望拜访贵厂。` : "我们将于2026年11月15日至27日在中国（广州、佛山、深圳、义乌、上海宝马展），希望与贵司会面或参观工厂。") : "") + "谢谢！");
+      }
       return L.join("\n");
     }
-    function build() { fv("txt").value = text(); const v = vend(); if (v && v.e && !fv("to").dataset.touched) fv("to").value = v.e; else if (!fv("to").dataset.touched) fv("to").value = ""; }
-    fv("to").addEventListener("input", () => fv("to").dataset.touched = "1");
-    F.addEventListener("change", build); F.addEventListener("input", e => { if (e.target.name !== "txt") build(); });
-    const need = () => { if (!fv("sn").value || !fv("se").value) { fv(fv("sn").value ? "se" : "sn").focus(); return false; } return true; };
-    F.addEventListener("click", async e => {
-      const a = e.target.closest("[data-a]"); if (!a) return; build();
-      if (a.dataset.a === "copy") { try { await navigator.clipboard.writeText(subj() + "\n\n" + fv("txt").value); a.textContent = "✓"; } catch (x) { fv("txt").select(); } return; }
-      if (!need()) return;
-      if (a.dataset.a === "mail") { location.href = `mailto:${encodeURIComponent(fv("to").value)}?subject=${encodeURIComponent(subj())}&body=${encodeURIComponent(fv("txt").value)}`; return; }
-      // .eml draft (X-Unsent) with the product image attached
+    const enc = s => "=?UTF-8?B?" + btoa(unescape(encodeURIComponent(s))) + "?=";
+    async function eml(to, bcc, body, name) {
       let att = "";
       if (R.img) { try { const b = await (await fetch(R.img)).blob(); const b64 = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(",")[1]); fr.readAsDataURL(b); });
         att = `--AEGTRFQ\r\nContent-Type: image/jpeg; name="${R.id}.jpg"\r\nContent-Transfer-Encoding: base64\r\nContent-Disposition: attachment; filename="${R.id}.jpg"\r\n\r\n${b64.replace(/.{76}/g, "$&\r\n")}\r\n`; } catch (x) {} }
-      const enc = s => "=?UTF-8?B?" + btoa(unescape(encodeURIComponent(s))) + "?=";
-      const body = btoa(unescape(encodeURIComponent(fv("txt").value))).replace(/.{76}/g, "$&\r\n");
-      const eml = `X-Unsent: 1\r\nTo: ${fv("to").value}\r\nFrom: ${fv("se").value}\r\nSubject: ${enc(subj())}\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary="AEGTRFQ"\r\n\r\n--AEGTRFQ\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${body}\r\n${att}--AEGTRFQ--\r\n`;
-      const url = URL.createObjectURL(new Blob([eml], { type: "message/rfc822" })); const l = document.createElement("a"); l.href = url; l.download = `RFQ_${R.id}.eml`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+      const bd = btoa(unescape(encodeURIComponent(body))).replace(/.{76}/g, "$&\r\n");
+      const m = `X-Unsent: 1\r\nTo: ${to}\r\n${bcc ? "Bcc: " + bcc + "\r\n" : ""}From: ${fv("se").value}\r\nSubject: ${enc(subj())}\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary="AEGTRFQ"\r\n\r\n--AEGTRFQ\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${bd}\r\n${att}--AEGTRFQ--\r\n`;
+      const url = URL.createObjectURL(new Blob([m], { type: "message/rfc822" })); const l = document.createElement("a"); l.href = url; l.download = name; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+    const mailto = (to, bcc, body) => { location.href = `mailto:${encodeURIComponent(to)}?${bcc ? "bcc=" + encodeURIComponent(bcc) + "&" : ""}subject=${encodeURIComponent(subj())}&body=${encodeURIComponent(body)}`; };
+    const copy = async (btn, body) => { try { await navigator.clipboard.writeText(subj() + "\n\n" + body); btn.textContent = "✓"; setTimeout(() => btn.textContent = "⧉", 1500); } catch (x) { fv("txt").value = body; fv("txt").select(); } };
+    function build() {
+      const one = F.querySelector("input[name=mode]:checked").value === "one", vs = sel();
+      fv("txt").value = text(one && vs.length ? vs[0] : null);
+      F.querySelector("[data-all]").hidden = one; F.querySelector("[data-each]").hidden = !one;
+      const noe = vs.filter(v => !v.e);
+      F.querySelector("[data-noe]").innerHTML = !one && noe.length ? `<b>${esc(L3("Ohne E-Mail – Text kopieren und dort senden:", "No e-mail – copy the text and send it there:", "无邮箱 – 复制文本后在此发送："))}</b> ` + noe.map(v => (v.u || v.w) ? `<a href="${esc(v.u || v.w)}" target="_blank" rel="noopener">${esc(v.n)} ↗</a>` : esc(v.n)).join(" · ") : "";
+      if (one) F.querySelector("[data-each]").innerHTML = vs.map((v, i) => `<div class="rfq-v"><span><b>${vname(v)}</b><br><span class="muted">${esc(v.e || L3("keine E-Mail", "no e-mail", "无邮箱"))}${v.s ? " · " + esc(L3("Reise", "trip", "行程")) + ": " + esc(v.s) : ""}</span></span><span class="rfqa">`
+        + (v.e ? `<button type="button" class="btn on" data-o="mail" data-i="${i}">✉</button><button type="button" class="btn" data-o="eml" data-i="${i}">📎 .eml</button>` : "")
+        + ((v.u || v.w) ? `<a class="btn" href="${esc(v.u || v.w)}" target="_blank" rel="noopener">${v.u ? "Made-in-China" : L3("Website", "website", "网站")} ↗</a>` : "")
+        + `<button type="button" class="btn" data-o="copy" data-i="${i}">⧉</button></span></div>`).join("")
+        + extra().map((x, i) => `<div class="rfq-v"><span><b>${esc(x)}</b></span><span class="rfqa"><button type="button" class="btn on" data-o="mailx" data-i="${i}">✉</button></span></div>`).join("");
+    }
+    F.addEventListener("change", build); F.addEventListener("input", e => { if (e.target.name !== "txt") build(); });
+    const need = () => { if (!fv("sn").value || !fv("se").value) { fv(fv("sn").value ? "se" : "sn").focus(); return false; } return true; };
+    F.addEventListener("click", async e => {
+      const a = e.target.closest("[data-a]"), o = e.target.closest("[data-o]"); if (!a && !o) return;
+      build(); const vs = sel();
+      if (a) {
+        const body = text(null), bcc = [...vs.filter(v => v.e).map(v => v.e), ...extra()].join(",");
+        if (a.dataset.a === "copy") return copy(a, body);
+        if (!need()) return;
+        if (a.dataset.a === "mail") return mailto(fv("se").value, bcc, body);
+        return eml(fv("se").value, bcc, body, `RFQ_${R.id}.eml`);
+      }
+      if (o.dataset.o === "mailx") { if (need()) mailto(extra()[+o.dataset.i], "", text(null)); return; }
+      const v = vs[+o.dataset.i], body = text(v);
+      if (o.dataset.o === "copy") return copy(o, body);
+      if (!need()) return;
+      if (o.dataset.o === "mail") return mailto(v.e, "", body);
+      return eml(v.e, "", body, `RFQ_${R.id}_${v.n.replace(/[^A-Za-z0-9]+/g, "_").slice(0, 30)}.eml`);
     });
     rb.addEventListener("click", () => { build(); dlg.showModal(); });
   }

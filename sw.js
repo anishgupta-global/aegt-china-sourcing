@@ -1,5 +1,5 @@
 /* AE Global Traders – iPad app: offline cache. Pages: network first (5 s), then cache. Assets: cache first. Map tiles and external sites: network only. */
-const V = "aegt-core-e02de79e", PAGES = "aegt-pages", CORE = ["./", "index.html", "manifest.webmanifest", "assets/style.css", "assets/app.js", "de/index.html", "de/trip.html", "de/map.html", "en/index.html", "en/trip.html", "en/map.html", "zh/index.html", "zh/trip.html", "zh/map.html", "assets/brand/aegt-icon-192.png", "assets/brand/aegt-icon-512.png", "assets/brand/aegt-icon-maskable-512.png", "assets/brand/aegt-logo-header-light.svg", "assets/brand/aegt-logo-light.svg", "assets/brand/aegt-logo-mail.png", "assets/brand/aegt-logo.png", "assets/brand/aegt-logo.svg", "assets/brand/aegt-mark.svg", "assets/brand/aegt-touch-180.png", "assets/fonts/italiana.woff2", "assets/fonts/montserrat-vf.woff2", "assets/vendor/leaflet/images/layers-2x.png", "assets/vendor/leaflet/images/layers.png", "assets/vendor/leaflet/images/marker-icon-2x.png", "assets/vendor/leaflet/images/marker-icon.png", "assets/vendor/leaflet/images/marker-shadow.png", "assets/vendor/leaflet/leaflet.css", "assets/vendor/leaflet/leaflet.js"];
+const V = "aegt-core-fc75ae30", PAGES = "aegt-pages", CORE = ["./", "index.html", "manifest.webmanifest", "assets/style.css?v=fc75ae30", "assets/app.js?v=fc75ae30", "de/index.html", "de/trip.html", "de/map.html", "en/index.html", "en/trip.html", "en/map.html", "zh/index.html", "zh/trip.html", "zh/map.html", "assets/brand/aegt-icon-192.png", "assets/brand/aegt-icon-512.png", "assets/brand/aegt-icon-maskable-512.png", "assets/brand/aegt-logo-header-light.svg", "assets/brand/aegt-logo-light.svg", "assets/brand/aegt-logo-mail.png", "assets/brand/aegt-logo.png", "assets/brand/aegt-logo.svg", "assets/brand/aegt-mark.svg", "assets/brand/aegt-touch-180.png", "assets/fonts/italiana.woff2", "assets/fonts/montserrat-vf.woff2", "assets/vendor/leaflet/images/layers-2x.png", "assets/vendor/leaflet/images/layers.png", "assets/vendor/leaflet/images/marker-icon-2x.png", "assets/vendor/leaflet/images/marker-icon.png", "assets/vendor/leaflet/images/marker-shadow.png", "assets/vendor/leaflet/leaflet.css", "assets/vendor/leaflet/leaflet.js"];
 self.addEventListener("install", e => e.waitUntil(caches.open(V).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => {})))).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("aegt-core-") && k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 const OFF = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="font:16px system-ui;padding:40px;background:#F6F5F3;color:#242424">
@@ -11,8 +11,10 @@ async function netFirst(req) {
   catch (x) { return (await caches.match(req, { ignoreSearch: true })) || new Response(OFF, { headers: { "Content-Type": "text/html; charset=utf-8" } }); }
 }
 async function cacheFirst(req) {
-  const hit = await caches.match(req, { ignoreSearch: true }); if (hit) return hit;
-  const res = await fetch(req);
+  const versioned = new URL(req.url).searchParams.has("v");
+  const hit = await caches.match(req, { ignoreSearch: !versioned }); if (hit) return hit;
+  let res;
+  try { res = await fetch(req); } catch (x) { const old = await caches.match(req, { ignoreSearch: true }); if (old) return old; throw x; }
   if (res.ok) (await caches.open(/\.(css|js|woff2?)$/.test(new URL(req.url).pathname) ? V : PAGES)).put(req, res.clone());
   return res;
 }

@@ -654,3 +654,7 @@ table.itin{margin:4px 0 14px}table.itin th{width:9.5em;white-space:nowrap}
 .offl:hover{border-color:var(--cream,#F6F5F3)}.offl:disabled{opacity:.7}
 .splash .inst{font-size:12.5px;margin-top:18px}
 @media (display-mode: standalone){.splash .inst{display:none}}
+
+/* RFQ: one-time "always open .eml" setup hint */
+.rfq-setup{border:1px solid var(--hair,#ddd);border-radius:10px;padding:12px 14px;margin:8px 0;background:rgba(36,36,36,.03);font-size:13.5px}
+.rfq-setup ol{margin:6px 0 8px 20px;padding:0}.rfq-setup li{margin:2px 0}.rfq-setup .btn{margin-top:4px}

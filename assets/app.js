@@ -18,7 +18,7 @@
           const m = await (await fetch(ROOT + "offline.json", { cache: "no-store" })).json();
           const c = await caches.open("aegt-pages"), list = [...m.assets, ...(m[lang] || [])], total = list.length; let done = 0, fail = 0;
           const work = async () => { while (list.length) { const p = list.shift(), u = ROOT + p;
-            try { const html = /\.html$/.test(p); if (html || !(await caches.match(u, { ignoreSearch: true }))) { const r = await fetch(u, { cache: "no-cache" }); if (r.ok) await c.put(u, r); else fail++; } } catch (x) { fail++; }
+            try { const html = /\.html$|\/$|^[^.]*$|\/[^./]+$/.test(p); if (html || !(await caches.match(u, { ignoreSearch: true }))) { const r = await fetch(u, { cache: "no-cache" }); if (r.ok) await c.put(u, r); else fail++; } } catch (x) { fail++; }
             done++; if (done % 10 === 0 || done === total) b.textContent = `⤓ ${done} / ${total}`; } };
           await Promise.all(Array.from({ length: 6 }, work));
           const d = new Date().toLocaleString(lang === "de" ? "de-DE" : lang === "zh" ? "zh-CN" : "en-GB", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -32,6 +32,7 @@
   }
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const EXT = location.protocol === "file:" || /^(localhost|127\.|\[::1\])/.test(location.hostname) ? "" : "";  // live site: clean URLs without .html
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 
   /* ---------- generic card filter (category listing + makers directory) ---------- */
@@ -466,7 +467,7 @@
       const links = [x.x ? `<a href="https://community.b-china.cn/en/exhibition/info/${x.x}" target="_blank" rel="noopener">${esc(T.exh)} ↗</a>` : "",
         m ? `<a href="${m.h}">${esc(T.profile)}</a>` : "", m && m.w ? `<a href="${esc(m.w)}" target="_blank" rel="noopener">${esc(T.web)} ↗</a>` : ""].join("");
       const body = x.pr.length ? `<h4>${esc(T.prodsin)} (${x.pr.length})</h4><div class="grid bxp-grid">${x.pr.map(j => prod(B.P[j])).join("")}</div>`
-        : `<p class="muted" style="margin-top:12px">${esc(T.noprod)}</p><div class="bxp-cats">${x.cat.map(c => `<a href="category/${B.cslug[c]}.html">${c} ${esc(B.cats[c])}</a>`).join("")}</div>`;
+        : `<p class="muted" style="margin-top:12px">${esc(T.noprod)}</p><div class="bxp-cats">${x.cat.map(c => `<a href="category/${B.cslug[c]}${EXT}">${c} ${esc(B.cats[c])}</a>`).join("")}</div>`;
       dlg.innerHTML = `<div class="bxp"><div class="bxp-h">${logo(x, " lg")}<div><h3>${esc(x.n)}</h3>`
         + `<p class="muted">${esc([x.v, x.b, x.c].filter(Boolean).join(" · "))}${m ? " · " + esc(m.city) + (m.t ? " · Tier " + esc(m.t) : "") : ""}</p>`
         + `<div class="bx-tags">${badge(x.p)}${x.s.map(sec).join("")}</div></div><button type="button" class="bxp-x" aria-label="${esc(T.close)}">×</button></div>`
